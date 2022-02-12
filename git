@@ -1,0 +1,41 @@
+git config user.name "User Name"
+git config user.email "Email"
+
+git init
+git add [file || path]
+git commit . -m (message) "your message"
+git checkout [commit id || branch name]
+
+git log => show all past commits
+git reflog => quick log history
+
+git diff commit_id1 commit_id2
+
+-------------- Delete commits -------------
+## Delete bulck of commits
+git reset --soft commit_id ==> move to that commit and delete what between 
+git status
+git commit -m "new Edit" ==> Move to staging area
+
+git reset --hard commitid ==> move to that commit and hard delete what between 
+git 
+
+## Delete specific commit
+git revert -m "your new Message" commit_id  ==> actually it makes new commit without that specific commit
+
+----------- Push online -------------------
+git remote add origin [git url] ==> create a shortcut for the the url
+
+git pull origin master(branch name) ==> get the last updated repo keeping my changes
+git push origin master(branch name) ==> get it online
+
+-----
+
+git clone [url]
+
+----------------- Attach on;ine github with local shell --------------------------
+when you push , the terminal will ask you for the user name:, then the token and for getting that token,
+go into the profile and take these steps:
+profile > setting > developer setting > personal access token > generate access token (and give it some credintials)
+
+or through ssh;
