@@ -19,7 +19,7 @@ function showList {
         2) CreateTable $1; ShowTables $1;;
         3) ../../insertIntoTable.sh $1;;
         # 4) SelectFromTable $1;;
-        # 5) UpdateTable $1;;
+        5) ../../updateTable.sh $1;;
         # 6) DeleteFromTable $1;;
         # 7) DropTable $1;;
         8) exit;;
@@ -81,7 +81,7 @@ function verifiedTableName {
 
     read -p "Enter Column Number: " cols
     # it checks for an integer, if it doesn't find an int it returns both an error which you can toss to /dev/null and a value of false.
-    if [ $cols -eq $cols 2>/dev/null ]
+    if [[ $cols ]] && [ $cols -eq $cols 2>/dev/null ]
     then
         columnSeparator=":"
         rowSeparator="\n"
@@ -131,7 +131,7 @@ function verifiedTableName {
             fi
         done
         # past columns in .tmp2
-        echo -e "$lineOfCols$rowSeparator" >> .tmp2;
+        echo -e "$lineOfCols$rowSeparator" > .tmp2;
         # Change the Name of the table to the actual table name
         echo "Save or Back without Saving?"
         select choice in "Save" "Back without Saving"

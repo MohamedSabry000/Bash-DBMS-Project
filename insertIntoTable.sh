@@ -6,7 +6,7 @@ function InsertTable {
     if ! [[ -f ./$name ]]
     then
         echo "Table Doesn't Exist!";
-        InsertTable;
+        insertOrExit;
     else
         PS3="[ $DBName > $name ]: "
         insertIntoTable $name;
@@ -26,142 +26,106 @@ function insertOrExit {
 
 function insertIntoTable {
     tableName=$1
-    desc=`awk`
-}
+    colNames=`awk -F : '{if(NR != 1) print $1}' .$tableName | sed -z 's/\n/, /g;s/, $/ /'`
+    # -z separate lines by NUL characters
+    colvalues=`awk -F : '{if(NR != 1) print "..... ,"}' .$tableName  | sed -z 's/\n/ /g;s/, $//'`
+    numOfCols=`awk -F : '{if(NR != 1) print "..... ,"}' .$tableName  | wc -l`
 
-
-
-InsertTable $1
-
-function UpdateTable {
-    PS3="[ $DBName ]: "
-    read -p "Enter Table Name: " name
-    if ! [[ -f ./$name ]]
-    then
-        echo "Table Doesn't Exist!";
-        UpdateTable;
-    else
-        PS3="[ $DBName > $name ]: "
-        validateQuery $name;
-    fi
-}
-function updateOrExit {
-    PS3="Please Enter a Choice: "
-    select choice in "Try Again" "Exit"
-    do
-        case $REPLY in
-        1) UpdateTable;;
-        2) clear; ../../tables.sh $DBName;;
-        *) updateOrExit;;
-        esac
-    done
-}
-
-function validateQuery {
-    PS3="[ $DBName ]: "
-    tableName=$1
-    clear
-    colNames=`awk -F : '{if(NR != 1) print $1}' .$tableName `
-
-    clear
-    PrintInCenter "==> Update $tableName Set ...... = ..... Where ..... = ..... <<=="
-    echo $colNames|tr '\n' '\t'
+    query="INSERT INTO $tableName ( $colNames)VALUES ( $colvalues)"
+    PrintInCenter $query;
     PrintInCenter "-----------------------------"
 
-    read -p "Enter the column name of what you want to update: " colName
-    read -p "Enter the column value of what you want to update: " colValue
-    read -p "Enter the based column name of what you want to update: " basedColName
-    read -p "Enter the based column value of what you want to update: " basedColValue
-    if ![ $colName in colNames]
-    then
-        echo "Column Name Doesn't Exist!";
-        enterQueryOrExit $tableName
-    elif ![ $basedColName in colNames]
-        echo "Based Column Name Doesn't Exist!";
-        enterQueryOrExit $tableName
-    else
-        colType=`awk -F : '{if($1=="$colName" && NR != 1) print $2}' .$tableName`    # serach in the describtion file for the type column($2) 
-        basedColType=`awk -F : '{if($1=="$basedColName" && NR != 1) print $2}' .$tableName`    # serach in the describtion file for the type column($2) 
-
-        if [[ $colType == "int" ] && ! [ $colValue -eq $colValue 2>/dev/null ]]     # Check it's a number
-        then 
-            echo "Enter an Integer Number, Please!"
-            enterQueryOrExit $tableName
-        fi
-
-    fi
-}
-function enterQueryOrExit {
-    PS3="Please Enter a Choice: "
-    select choice in "Try Again" "Exit"
+    awk -F : '{
+        if(NR != 1) {
+            read -p 
+        }
+    }' .$tableName
+    line=''
+    index=1
+    for typ in `awk '{if(NR != 1) print $0}' .$tableName`
     do
-        case $REPLY in
-        1) validateQuery $1;;
-        2) clear; ../../tables.sh $DBName;;
-        *) enterQueryOrExit;;
-        esac
-    done
-}
-# ////////////////
-function updateTheTable {
-    tableName=$1
-    clear
-    colNames=`awk -F : '{if(NR != 1) print $1}' .$tableName `
+    echo $typ
+        col_Name=`echo $typ | awk -F : '{print $1}'`
+        col_type=`echo $typ | awk -F : '{print $2}'`
+        col_PK=`echo $typ | awk -F : '{print $3}'`
 
-    PrintInCenter "==> Update $name Set ...... = ..... Where ..... = ..... <<=="
-    echo $colNames|tr '\n' '\t'
-    PrintInCenter "-----------------------------"
+        if [[ $col_type == "int" ]]
+        then
+            # Enter Integer Number
+            if [[ $col_PK == "T" ]]
+            then
+                while : ;
+                do
+                    num="fake data"
+                    while ! [ $num -eq $num 2>/dev/null ]
+                    do
+                        read -p "Enter a Valid Integer Number: " num
+                    done
 
-    read -p "Enter the column name of what you want to update: " colName
-    if ![ $colName in colNames]
-    then 
-        echo "Column Name Doesn't Exist!";
-        updateTheTable;
-    else
-        clear
-        PrintInCenter "==> Update $tableName Set $colName = ..... Where ..... = ..... <<=="
-        echo $colNames|tr '\n' '\t'
-        PrintInCenter "-----------------------------"
-        read -p "Enter the based column name: " basedColName
-        if ![ $basedColName in colNames]
-        then 
-            echo "Column Name Doesn't Exist!";
-            updateTheTable;
+                    i="\$$index";
+                    data=`awk -F : 'BEGIN{OFS="\n";} {if(NR != 1) print '$i'}' $tableName | grep -Fqs $num && echo $?`
+                    # grep -F => Interpret PATTERN as a list of fixed strings, separated by newlines, any of which is to be matched.
+                    # grep -q => Quiet; do not write anything to standard output. Exit immediately with zero status if any match is found, even if an error was detected.
+                    # grep -s => --no-messages for not showing error messages.
+
+                    if [[ $data == '0' ]]
+                    then
+                        echo "Data is Duplicated on a Primary Column!"
+                    else
+                        # append value to [line] variable
+                        line="$line:$num"
+                        break;
+                    fi
+                done
+            else
+                num="fake data"
+                while ! [ $num -eq $num 2>/dev/null ]
+                do
+                    read -p "Enter an Integer Number: " num
+                done
+                # append value to [line] variable
+                line="$line:$num"
+            fi
+            
         else
-            clear
-            PrintInCenter "==> Update $tableName Set $colName = ..... Where $basedColName = ..... <<=="
-            PrintInCenter "-----------------------------"
-            getValuesOfUpdate $tableName $colName $basedColName
-        fi    
-    fi    
-}
+            # Enter Integer Number
+            if [[ $col_PK == "T" ]]
+            then
+                while : ;
+                do
+                    read -p "Enter a String: " str
+                    i="\$$index";
+                    data=`awk -F : 'BEGIN{OFS="\n";} {if(NR != 1) print '$i'}' $tableName | grep -Fqs $num && echo $?`
+                    # grep -F => Interpret PATTERN as a list of fixed strings, separated by newlines, any of which is to be matched.
+                    # grep -q => Quiet; do not write anything to standard output. Exit immediately with zero status if any match is found, even if an error was detected.
+                    # grep -s => --no-messages for not showing error messages.
 
-function getValuesOfUpdate {
-    tableName=$1
-    colName=$2
-    colType=`awk -F : '{if($1=="$colName" && NR != 1) print $2}' .$tableName`    # serach in the describtion file for the type column($2) 
-    basedColName=$3
-    basedColType=`awk -F : '{if($1=="$basedColName" && NR != 1) print $2}' .$tableName`    # serach in the describtion file for the type column($2) 
-    read -p "Enter the based value: " basedValue
+                    if [[ $data == '0' ]]
+                    then
+                        echo "Data is Duplicated on a Primary Column!"
+                    else
+                        # append value to [line] variable
+                        line="$line:$num"
+                        break;
+                    fi
+                done
 
-    if [$basedColType == "int"]
-    then
-        if ! [ $basedValue -eq $basedValue 2>/dev/null ]
-        then echo "Enter an Integer Number, Please!"
-             getValuesOfUpdate $tableName $colName $basedColName
-        else 
-            executeUpdate $tableName $colName $basedColName $value
+            else
+                read -p "Enter a String: " str
+                # append value to [line] variable
+                if [ $index -eq 1 ]
+                then
+                    line="$str"
+                else
+                    line="$line:$str"
+                fi
+            fi
         fi
-    else
-        executeUpdate $tableName $colName $basedColName $value
-    fi
-}
-function executeUpdate {
-    tableName=$1 
-    colName=$2 
-    basedColName=$3 
-    value=$4
-    awk -F : '{sub(/2019/,2020); print . "$tableName" }' > $tableName
+        index=$(( $index + 1 ))
+    done
+    echo $line >> $tableName;
+    clear; 
+    ../../tables.sh $DBName;
 }
 
 #       General Functions
@@ -173,3 +137,5 @@ function PrintInCenter {
     # (*) used to pass the width specifier/precision to printf rather than hard coding it into the format string
     printf "\n%*s\n" $(((${#text}+$COLUMNS)/2)) "$text"
 }
+
+InsertTable $1
