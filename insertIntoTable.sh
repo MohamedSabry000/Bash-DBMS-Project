@@ -73,7 +73,12 @@ function insertIntoTable {
                         echo "Data is Duplicated on a Primary Column!"
                     else
                         # append value to [line] variable
-                        line="$line:$num"
+                        if [ $index -eq 1 ]
+                        then
+                            line="$num"
+                        else
+                            line="$line:$num"
+                        fi
                         break;
                     fi
                 done
@@ -84,7 +89,12 @@ function insertIntoTable {
                     read -p "Enter an Integer Number: " num
                 done
                 # append value to [line] variable
-                line="$line:$num"
+                if [ $index -eq 1 ]
+                then
+                    line="$num"
+                else
+                    line="$line:$num"
+                fi
             fi
             
         else
@@ -105,7 +115,12 @@ function insertIntoTable {
                         echo "Data is Duplicated on a Primary Column!"
                     else
                         # append value to [line] variable
-                        line="$line:$num"
+                        if [ $index -eq 1 ]
+                        then
+                            line="$num"
+                        else
+                            line="$line:$num"
+                        fi
                         break;
                     fi
                 done

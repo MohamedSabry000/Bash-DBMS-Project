@@ -1,0 +1,5 @@
+a
+id:int:T
+fname:str:F
+lname:str:F
+salary:int:F

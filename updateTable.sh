@@ -17,7 +17,7 @@ function updateOrExit {
     select choice in "Try Again" "Exit"
     do
         case $REPLY in
-        1) UpdateTable;;
+        1) updateTable;;
         2) clear; ../../tables.sh $DBName;;
         *) updateOrExit;;
         esac
@@ -27,6 +27,9 @@ function updateOrExit {
 function validateQuery {
     PS3="[ $DBName > $1 ]: "
     tableName=$1
+
+    column -t -s ":" $tableName;
+
     colNames=`awk -F : '{if(NR != 1) print $1}' .$tableName `
 
     clear
@@ -113,9 +116,14 @@ function validateQuery {
         usedBasedColIndex="\$$basedColIndex";
         usedTargetColIndex="\$$targetColIndex";
 
-        awk '{
-            if(NR != 1 && '$usedBasedColIndex' == "'$basedColValue'") '$usedTargetColIndex'="'$colValue'"
-        }' $tableName
+        # Update usin substitute => awk -> file called 'updated-$tableName', then remove table; rename table name from 'updated-$table name' to 'table name'
+        awk -F : -v OFS=":" '{
+            if(NR != 1 && '$usedBasedColIndex' == "'$basedColValue'") {'$usedTargetColIndex'="'$colValue'";}
+            print;
+        }' $tableName > "updated-$tableName";
+        rm $tableName;
+        mv "updated-$tableName" $tableName;
+
         clear; 
         ../../tables.sh $DBName;
     fi

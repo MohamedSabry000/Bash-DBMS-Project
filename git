@@ -39,3 +39,24 @@ go into the profile and take these steps:
 profile > setting > developer setting > personal access token > generate access token (and give it some credintials)
 
 or through ssh;
+
+
+-----------------------------------------------------------------
+git branch  ==> show the current branchs
+
+git branch [branch name]
+git checkout [branch name]
+
+git push origin [branch name]
+
+---------- Tags ------------
+git tag [tag name]
+git tag a [tag name] -m "Message"
+
+git tag --list
+
+git push origin [tag name](v1.0.1)  =>push online
+
+git checkout [tag name](v1.0.1)  =>go back to tag point online
+
+git show

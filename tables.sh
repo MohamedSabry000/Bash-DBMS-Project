@@ -18,10 +18,10 @@ function showList {
         1) ShowTables $1;   showList $1;;
         2) CreateTable $1; ShowTables $1;;
         3) ../../insertIntoTable.sh $1;;
-        # 4) SelectFromTable $1;;
+        4) ../../selectFromTable.sh $1;;
         5) ../../updateTable.sh $1;;
-        # 6) DeleteFromTable $1;;
-        # 7) DropTable $1;;
+        6) ../../deleteFromTable.sh $1;;
+        7) ../../dropTable.sh $1;;
         8) exit;;
         9) clear; cd ../../; ./DBMS.sh; break;;
         *) echo -e "=========> Wrong Choice <==========";;
@@ -143,6 +143,7 @@ function verifiedTableName {
             esac
         done
         PS3="[ $databaseName ]: "
+        showList $databaseName
     else
         continueColStepOrExit $tableName
     fi
