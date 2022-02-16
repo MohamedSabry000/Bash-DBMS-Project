@@ -12,19 +12,13 @@ function mainMenu {
     select element in "Create Database" "List Databas" "Drop Database" "Connect to Database" "Exit"
     do 
         case $REPLY in 
-            "") echo "hello"; break;;
-            1) createDB; mainMenu;;       # Create new database
-            2) listDBs;  mainMenu;;	    # List databases
+            1) createDB; mainMenu;;         # Create new database
+            2) listDBs;  mainMenu;;	        # List databases
             3) dropDB;   mainMenu;;         # Drop Table
             4) connectDB; break;;           # Connect Table
             5) exit;;
             *) PS3="Please Select from the menu: ";;
         esac
-        if [ -z $REPLY ]
-        then echo "hello";
-        else echo "noo"
-        fi
-        echo $REPLY;
     done
 }
 
@@ -34,6 +28,10 @@ function createDB {
 
     if [ -d ./$const_root/$DBName ] 
 	then PrintInCenter "[ $DBName ] Database is already exists!"
+    elif ! [[ $name =~ ^[a-zA-Z]*$ ]]
+    then
+        echo "Database must be Alphabitic!"
+        createDB;
     else
         mkdir ./$const_root/$DBName        
         PrintInCenter "==>> Database created successfully! <<=="
@@ -48,10 +46,9 @@ function listDBs {
 
         if [ $subdircount -gt 1 ]; 
         then
-            echo "Available Databases are:"
-            ls -d ./$const_root/*/ | cut -f3 -d '/' | tr '\n' '\t'      # tr used to make the output horizontally with replacing \n with \t
+            echo -e "Available Databases are: \n"
+            ls -d ./$const_root/*/ | cut -f3 -d '/' | tr '\n' '\t'       # tr used to make the output horizontally with replacing \n with \t
             echo -e "\n"
-            PrintInCenter "============================"
         else PrintInCenter "==>> There is no Databases yet! <<=="
         fi
     fi
@@ -68,12 +65,13 @@ function dropDB {
             case $REPLY in
             1) rm -r ./$const_root/$DBName
                clear
-               PrintInCenter "===>> [ $DBName ] deleted Successfully! <<===" ;;
+               PrintInCenter "===>> [ $DBName ] deleted Successfully! <<===" ;
+               break;;
             2) clear;;
             esac
         done
     else 
-        PrintInCenter " ===>> Database $DBName wasn't found <<==="
+        PrintInCenter " ===>> Database [ $DBName ] wasn't found <<==="
         dropOrExit
     fi
 }
@@ -99,14 +97,15 @@ function connectDB
     then 
         cd ./$const_root/$DBName
         clear
-        PrintInCenter "Connected to $DBName Successfully"
+        PrintInCenter "Connected to [ $DBName ] Successfully"
         # Execute Tables Setting
 	    ./../../tables.sh $DBName
     else 
-	    PrintInCenter "===>> Database $name wasn't found <<==="
+	    PrintInCenter "===>> Database [ $DBName ] wasn't found <<==="
 	    connectOrExit
     fi
 }
+
 function connectOrExit {
     PS3="Please Enter a Choice: "
     select choice in "Try Again" "Exit"
@@ -119,7 +118,6 @@ function connectOrExit {
     done
 }
 
-
 #       General Functions
 function PrintInCenter {
     # tput uses the terminfo database to make the values of terminal-dependent capabilities and information  available  to  the  shell
@@ -129,4 +127,5 @@ function PrintInCenter {
     # (*) used to pass the width specifier/precision to printf rather than hard coding it into the format string
     printf "\n%*s\n" $(((${#text}+$COLUMNS)/2)) "$text"
 }
+
 mainMenu

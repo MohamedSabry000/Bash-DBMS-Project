@@ -25,7 +25,7 @@ function insertOrExit {
 }
 
 function insertIntoTable {
-    tableName=$1
+    tableName=$1 
     colNames=`awk -F : '{if(NR != 1) print $1}' .$tableName | sed -z 's/\n/, /g;s/, $/ /'`
     # -z separate lines by NUL characters
     colvalues=`awk -F : '{if(NR != 1) print "..... ,"}' .$tableName  | sed -z 's/\n/ /g;s/, $//'`
@@ -35,16 +35,11 @@ function insertIntoTable {
     PrintInCenter $query;
     PrintInCenter "-----------------------------"
 
-    awk -F : '{
-        if(NR != 1) {
-            read -p 
-        }
-    }' .$tableName
     line=''
     index=1
     for typ in `awk '{if(NR != 1) print $0}' .$tableName`
     do
-    echo $typ
+        echo $typ
         col_Name=`echo $typ | awk -F : '{print $1}'`
         col_type=`echo $typ | awk -F : '{print $2}'`
         col_PK=`echo $typ | awk -F : '{print $3}'`
@@ -57,7 +52,7 @@ function insertIntoTable {
                 while : ;
                 do
                     num="fake data"
-                    while ! [ $num -eq $num 2>/dev/null ]
+                    while [ "$num" == "" ] || ! [ $num -eq $num 2>/dev/null ]
                     do
                         read -p "Enter a Valid Integer Number: " num
                     done
@@ -84,7 +79,7 @@ function insertIntoTable {
                 done
             else
                 num="fake data"
-                while ! [ $num -eq $num 2>/dev/null ]
+                while [ "$num" == "" ] || ! [ $num -eq $num 2>/dev/null ]
                 do
                     read -p "Enter an Integer Number: " num
                 done

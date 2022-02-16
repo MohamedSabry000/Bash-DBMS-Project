@@ -34,7 +34,7 @@ function ShowTables {
     tablescount=$(find . -maxdepth 1 -type f -not -path './.*' | wc -l)
     if [ $tablescount -gt 0 ]
     then 
-        echo "Available Tables are:"
+        echo -e "Available Tables are: \n"
         find . -maxdepth 1 -type f -not -path './.*' | cut -f2 -d '/' | tr '\n' '\t'      # tr used to make the output horizontally with replacing \n with \t, ignoring hidden files
         PrintInCenter "============================"
     else PrintInCenter "==>> There is no Tables yet! <<=="; 
@@ -47,9 +47,9 @@ function CreateTable {
     then
         echo "Table Already Exists!";
         createOrExit $1;
-    elif ! [[ $name =~ ^[a-zA-Z]*$ ]]
+    elif [ "$name" == "" ] || ! [[ "$name" =~ ^[a-zA-Z]*$ ]]
     then
-        echo "Table must start with Alphabitic!"
+        echo "Table name must be Alphabitic!"
         createOrExit $1
     else
         verifiedTableName $name;
@@ -66,6 +66,7 @@ function createOrExit {
         esac
     done
 }
+
 function verifiedTableName {
     #------------ metadata temp file --------
     # create Temp file for saving metadata, if anything wrong happened, i didn't create the actual table file yet!
@@ -82,7 +83,7 @@ function verifiedTableName {
     read -p "Enter Column Number: " cols
     # it checks for an integer, if it doesn't find an int it returns both an error which you can toss to /dev/null and a value of false.
     if [[ $cols ]] && [ $cols -eq $cols 2>/dev/null ]
-    then
+    then 
         columnSeparator=":"
         rowSeparator="\n"
         pkFlag=0
@@ -91,11 +92,11 @@ function verifiedTableName {
         do
             type=""
             pk="F"  # default of all columns are not primary key
-            read -p "Enter the $index Column Name starts with Alphabit: " colName;
+            read -p "Enter the $index Column Name (Alphabit): " colName;
             # verify the name starts with a char
-            if [ "$colName" == "" ] || ! [[ "${colName?}" =~ ^[a-zA-Z]*$ ]]
+            if [ "$colName" == "" ] || ! [[ "$colName" =~ ^[a-zA-Z]*$ ]]
             then
-                echo -e "Please Enter a Name starts with Alphabit Character. Try Again.\n"
+                echo -e "Please Enter a Name with Alphabit Characters. Try Again.\n"
                 ((index -= 1));
                 continue;
             fi

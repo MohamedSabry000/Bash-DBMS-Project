@@ -35,8 +35,8 @@ function validateQuery {
     PrintInCenter "-----------------------------"
 
     read -p "Enter the column name of what you want to select: " targetColName
-    read -p "Enter the column name of what you want to update: " colName
-    read -p "Enter the column value of what you want to update: " colValue
+    read -p "Enter the column name of what you want to select: " colName
+    read -p "Enter the column value of what you want to select: " colValue
 
     clear
     PrintInCenter "==> Select $targetColName From $tableName Where $colName = $colValue <<=="
